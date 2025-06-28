@@ -1,0 +1,8 @@
+[
+  { "id": "cat-1", "userId": "user-uuid-12345", "title": "Education", "description": "Learning and development", "income": 0, "expense": 0, "isDefault": true },
+  { "id": "cat-2", "userId": "user-uuid-12345", "title": "Food", "description": "Groceries and dining out", "income": 0, "expense": 0, "isDefault": true },
+  { "id": "cat-3", "userId": "user-uuid-12345", "title": "Transport", "description": "Commute and travel", "income": 0, "expense": 0, "isDefault": true },
+  { "id": "cat-4", "userId": "user-uuid-12345", "title": "Salary", "description": "Regular income from work", "income": 0, "expense": 0, "isDefault": true },
+  { "id": "cat-5", "userId": "user-uuid-12345", "title": "Utilities", "description": "Bills (electricity, water, internet)", "income": 0, "expense": 0, "isDefault": true },
+  { "id": "cat-6", "userId": "user-uuid-12346", "title": "Hobbies (Other User)", "description": "For a different user", "income": 0, "expense": 0, "isDefault": false }
+]
