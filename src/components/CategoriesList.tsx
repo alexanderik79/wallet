@@ -1,81 +1,104 @@
 // src/components/CategoriesList.tsx
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+
 import {
   selectAllCategories,
   selectCategoryStatus,
   selectCategoryError,
   fetchCategories,
-  addCategory // For adding new categories
+  addCategory
 } from '../features/category/categorySlice';
-import { selectCurrentUser } from '../features/user/userSlice'; // <-- NEW: Import selectCurrentUser
+import { selectCurrentUser, selectUserStatus, selectUserError } from '../features/user/userSlice'; // Import selectUserError
 import { RootState, AppDispatch } from '../app/store';
 import { Category } from '../types';
 
+// --- Import styled components ---
+import { StyledButton, LoadingMessage, ErrorMessage, MessageContainer } from '../styles/SharedStyles'; // Import shared button and messages
+import {
+  CategoriesContainer,
+  CategoriesTitle,
+  CategoryList,
+  CategoryListItem,
+  CategoryTitle as StyledCategoryTitle, // Alias to avoid name conflict with Category interface property
+  CategoryDescription,
+  CategoryFinancials,
+  EmptyCategoriesMessage
+} from './CategoriesList.styles'; // Import category-specific styles
+
 function CategoriesList() {
   const categories: Category[] = useSelector((state: RootState) => selectAllCategories(state));
-  const status = useSelector((state: RootState) => selectCategoryStatus(state));
-  const error = useSelector((state: RootState) => selectCategoryError(state));
-  const currentUser = useSelector((state: RootState) => selectCurrentUser(state)); // <-- NEW: Get current user
+  const categoryStatus = useSelector((state: RootState) => selectCategoryStatus(state));
+  const categoryError = useSelector((state: RootState) => selectCategoryError(state));
+  const currentUser = useSelector((state: RootState) => selectCurrentUser(state));
+  const userStatus = useSelector((state: RootState) => selectUserStatus(state));
+  const userError = useSelector((state: RootState) => selectUserError(state)); // Get user error for display
   const dispatch: AppDispatch = useDispatch();
 
-  // Dispatch the fetchCategories thunk when the component mounts
-  // Ensure we only try to fetch if we have a current user, or if categories are generally needed.
-  // For this scenario, we fetch all categories once and then filter by user.
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchCategories());
+    if (userStatus === 'succeeded' && currentUser && categoryStatus === 'idle') {
+      dispatch(fetchCategories(currentUser.id));
     }
-  }, [status, dispatch]);
+  }, [userStatus, currentUser, categoryStatus, dispatch]);
 
   const handleAddCategory = () => {
     if (currentUser) {
-      // Dispatch addCategory, providing the title, description, and the currentUser.id
       dispatch(addCategory({
         title: 'My Custom Category',
         description: 'Added by ' + currentUser.name,
-      }, currentUser.id)); // <-- NEW: Pass currentUser.id
+      }, currentUser.id));
     } else {
       alert('Please log in to add categories.');
     }
   };
 
-  if (status === 'loading') {
-    return <div style={{ color: 'blue' }}>Loading categories...</div>;
+  // Display messages based on user and category loading status
+  if (userStatus === 'loading') {
+    return <LoadingMessage>Loading user data...</LoadingMessage>;
+  }
+  if (userStatus === 'failed') {
+      return <ErrorMessage>Error loading user data: {userError || 'Unknown error'}</ErrorMessage>;
+  }
+  if (!currentUser && userStatus === 'succeeded') {
+    return (
+      <MessageContainer>
+        <CategoriesTitle>Categories</CategoriesTitle>
+        <p>No user logged in. Please ensure user data is loaded to view categories.</p>
+      </MessageContainer>
+    );
   }
 
-  if (status === 'failed') {
-    return <div style={{ color: 'red' }}>Error loading categories: {error}</div>;
+  if (categoryStatus === 'loading') {
+    return <LoadingMessage>Loading categories for {currentUser?.name || 'user'}...</LoadingMessage>;
   }
 
-  if (!currentUser) {
-    return <div style={{ padding: '20px', border: '1px solid #ccc', margin: '20px' }}>
-      <h2>Categories</h2>
-      <p>Please log in to view and manage your categories.</p>
-    </div>;
+  if (categoryStatus === 'failed') {
+    return <ErrorMessage>Error loading categories: {categoryError || 'Unknown error'}</ErrorMessage>;
   }
 
   return (
-    <div style={{ padding: '20px', border: '1px solid #ccc', margin: '20px' }}>
-      <h2>Categories (For {currentUser.name})</h2>
-      {categories.length === 0 && status === 'succeeded' ? (
-        <p>No categories found for this user.</p>
+    <CategoriesContainer>
+      <CategoriesTitle>Categories (For {currentUser?.name || 'current user'})</CategoriesTitle>
+      {categories.length === 0 && categoryStatus === 'succeeded' ? (
+        <EmptyCategoriesMessage>No categories found for this user.</EmptyCategoriesMessage>
       ) : (
-        <ul>
+        <CategoryList>
           {categories.map((category) => (
-            <li key={category.id}>
-              <strong>{category.title}</strong> ({category.isDefault ? 'Default' : 'Custom'})
-              {category.description && <span> - {category.description}</span>}
-              <br />
-              Income: ${category.income.toFixed(2)} | Expense: ${category.expense.toFixed(2)}
-            </li>
+            <CategoryListItem key={category.id}>
+              <StyledCategoryTitle>{category.title} ({category.isDefault ? 'Default' : 'Custom'})</StyledCategoryTitle>
+              {category.description && <CategoryDescription>{category.description}</CategoryDescription>}
+              <CategoryFinancials>
+                <span>Income: ${category.income.toFixed(2)}</span>
+                <span>Expense: ${category.expense.toFixed(2)}</span>
+              </CategoryFinancials>
+            </CategoryListItem>
           ))}
-        </ul>
+        </CategoryList>
       )}
-      <button onClick={handleAddCategory}>
+      <StyledButton onClick={handleAddCategory}>
         Add My Custom Category
-      </button>
-    </div>
+      </StyledButton>
+    </CategoriesContainer>
   );
 }
 

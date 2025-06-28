@@ -1,7 +1,0 @@
-{
-  "id": "user-uuid-12345",
-  "name": "Alex Smith",
-  "email": "alex.smith@example.com",
-  "startBalance": 7500.50,
-  "photo": "https://randomuser.me/api/portraits/men/25.jpg"
-}
