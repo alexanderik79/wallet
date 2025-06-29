@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 export const AppWrapper = styled.div`
   display: grid;
-  grid-template-columns: minmax(150px, 220px) 1fr;
+  grid-template-columns: minmax(120px, 210px) 1fr;
   min-height: 100vh;
   background-color: #f0f2f5;
   font-family: 'Inter', sans-serif;
@@ -60,8 +60,8 @@ export const MainContentGrid = styled.div`
   grid-template-columns: repeat(5, 1fr); 
   /* UPDATED: Первый ряд будет по высоте содержимого (auto), второй займет оставшееся пространство (1fr) */
   grid-template-rows: auto 1fr; 
-  gap: 25px;
-  padding: 25px;
+  gap: 10px;
+  padding: 10px;
 `;
 
 export const TopBalanceOverview = styled.div`
