@@ -34,7 +34,6 @@ export interface HistoryItem {
   date: string;
 }
 
-// NEW: Изменяем 'type Status' на 'enum Status'
 export enum Status {
   Idle = 'idle',
   Loading = 'loading',
@@ -45,20 +44,20 @@ export enum Status {
 // Interface for the Category slice state
 export interface CategoryState {
   categories: Category[];
-  status: Status; // Используем enum Status
+  status: Status;
   error: string | null;
 }
 
-// Interface for the User slice state (для полноты примера)
+// Interface for the User slice state
 export interface UserState {
   currentUser: User | null;
-  status: Status; // Используем enum Status
+  status: Status; 
   error: string | null;
 }
 
 // Interface for the History slice state
 export interface HistoryState {
   transactions: HistoryItem[];
-  status: Status; // Используем enum Status
+  status: Status; 
   error: string | null;
 }

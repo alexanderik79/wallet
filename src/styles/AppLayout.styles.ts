@@ -17,7 +17,10 @@ export const SidebarArea = styled.div`
   display: flex;
   flex-direction: column;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  overflow-y: auto; 
+  position: sticky; 
+  top: 0;           
+  align-self: start;
+  height: 100vh;
 `;
 
 export const SidebarHeader = styled.div`
@@ -59,7 +62,6 @@ export const MainContentGrid = styled.div`
   grid-template-rows: auto 1fr; 
   gap: 25px;
   padding: 25px;
-  overflow-y: auto;
 `;
 
 export const TopBalanceOverview = styled.div`
