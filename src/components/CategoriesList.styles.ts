@@ -6,13 +6,7 @@ import { MessageContainer, ErrorMessage, LoadingMessage } from '../styles/Shared
 export const CategoriesContainer = styled.div`
   background-color: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 30px;
-  /* UPDATED: Удаляем margin и max-width, т.к. внешний CategoriesListGridItem (из AppLayout.styles.ts)
-     уже задает размер и отступы в гриде и общие стили карточки.
-     CategoriesContainer теперь будет заполнять свою ячейку грида. */
-  /* margin: 40px auto; */
-  /* max-width: 600px; */ 
+  padding: 0px;
   font-family: 'Inter', sans-serif;
   color: #333;
   display: flex; /* Для выстраивания заголовка, списка и кнопки в колонку */
@@ -23,7 +17,7 @@ export const CategoriesContainer = styled.div`
 export const CategoriesTitle = styled.h2`
   font-size: 1.8em;
   color: #333;
-  margin-bottom: 25px;
+  margin-bottom: 10px;
   text-align: center;
 `;
 
@@ -35,7 +29,7 @@ export const CategoryList = styled.ul`
   /* КЛЮЧЕВЫЕ СТИЛИ ДЛЯ ГОРИЗОНТАЛЬНОГО ВЫСТРАИВАНИЯ */
   display: flex;   /* Активируем Flexbox */
   flex-wrap: wrap; /* Разрешаем элементам переноситься на новую строку, если не хватает места */
-  gap: 15px;       /* Отступ между элементами по горизонтали и вертикали */
+  gap: 10px;       /* Отступ между элементами по горизонтали и вертикали */
   
   flex-grow: 1; /* Позволяет списку занимать доступное пространство по высоте */
   overflow-y: auto; /* Добавляем прокрутку, если категорий очень много */
@@ -46,7 +40,7 @@ export const CategoryListItem = styled.li`
   background-color: #f9f9f9;
   border: 1px solid #eee;
   border-radius: 8px;
-  padding: 15px 20px;
+  padding: 5px 10px;
   /* UPDATED: Удаляем margin-bottom, т.к. spacing теперь будет контролироваться через gap родителя (CategoryList) */
   /* margin-bottom: 10px; */ 
   
@@ -57,7 +51,8 @@ export const CategoryListItem = styled.li`
 
   /* Опционально: можно задать min-width или flex-basis, чтобы категории были примерно одинакового размера */
   flex-basis: calc(33.33% - 15px); /* Например, 3 категории в ряд с учетом gap */
-  min-width: 180px; /* Минимальная ширина для каждой категории */
+  min-width: 150px; /* Минимальная ширина для каждой категории */
+  max-width: 29%;
 
   &:hover {
     background-color: #f0f0f0;
