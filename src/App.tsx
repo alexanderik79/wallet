@@ -4,22 +4,28 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectUserStatus, fetchUser } from './features/user/userSlice';
 import { AppDispatch, RootState } from './app/store';
 
-// Import new components
-import Sidebar from './components/Sidebar';
-import BalanceOverview from './components/BalanceOverview';
-import History from './components/History';
-import CategoriesList from './components/CategoriesList';
-import AddNote from './components/AddNote';
 
-// Import layout styled components
+import { GlobalStyle } from './styles/GlobalStyle';
+
+// Import layout styled components (keep these as they are your grid containers)
 import {
   AppWrapper,
+  SidebarArea,
   MainContentGrid,
   CategoriesListGridItem,
   HistoryGridItem,
   AddNoteGridItem,
-  // QuickStatsGridItem - REMOVED, as it's not needed
+  TopBalanceOverview, 
+  ChartGridItem, 
 } from './styles/AppLayout.styles';
+
+// Import your actual content components
+import Sidebar from './components/Sidebar'; // Your existing Sidebar component
+import BalanceOverview from './components/BalanceOverview'; // Your existing BalanceOverview component
+import History from './components/History'; // Your existing History component
+import CategoriesList from './components/CategoriesList'; // Your existing CategoriesList component
+import AddNote from './components/AddNote'; // Your existing AddNote component
+import CategoryExpenseChart from './components/CategoryExpenseChart'; // NEW: Import the chart component
 
 function App() {
   const dispatch: AppDispatch = useDispatch();
@@ -29,36 +35,49 @@ function App() {
   // Fetch user on app load if not already loading or succeeded
   useEffect(() => {
     if (userStatus === 'idle') {
-      dispatch(fetchUser());
+      dispatch(fetchUser('user-uuid-12345')); // Ensure you call with a valid userId from db.json
     }
   }, [userStatus, dispatch]);
 
   return (
-    <AppWrapper>
-      {/* Left Sidebar Component */}
-      <Sidebar />
+    <>
+      {/* Global styles applied here. It does not render anything in the DOM itself. */}
+      <GlobalStyle />
+      <AppWrapper>
+        {/* Left Sidebar Component - now wrapped by SidebarArea for layout */}
+        <SidebarArea>
+          <Sidebar /> {/* Your actual Sidebar component content goes here */}
+        </SidebarArea>
 
-      {/* Main Content Area (uses Grid internally) */}
-      <MainContentGrid>
-        {/* Balance Overview Section - UPDATED PLACEMENT */}
-        <BalanceOverview currentUser={currentUser} userStatus={userStatus} />
+        {/* Main Content Area (uses Grid internally) */}
+        <MainContentGrid>
+          {/* Balance Overview Section - wrapped by TopBalanceOverview for layout */}
+          <TopBalanceOverview>
+            <BalanceOverview currentUser={currentUser} userStatus={userStatus} />
+          </TopBalanceOverview>
 
-        {/* Add Note Section - UPDATED PLACEMENT */}
-        <AddNoteGridItem>
-          <AddNote />
-        </AddNoteGridItem>
+          {/* Add Note Section - wrapped by AddNoteGridItem for layout */}
+          <AddNoteGridItem>
+            <AddNote />
+          </AddNoteGridItem>
 
-        {/* History Transactions Section - UPDATED PLACEMENT */}
-        <HistoryGridItem>
-          <History />
-        </HistoryGridItem>
+          {/* History Transactions Section - wrapped by HistoryGridItem for layout */}
+          <HistoryGridItem>
+            <History />
+          </HistoryGridItem>
 
-        {/* Categories List Section - UPDATED PLACEMENT */}
-        <CategoriesListGridItem>
-          <CategoriesList />
-        </CategoriesListGridItem>
-      </MainContentGrid>
-    </AppWrapper>
+          {/* Categories List Section - wrapped by CategoriesListGridItem for layout */}
+          <CategoriesListGridItem>
+            <CategoriesList />
+          </CategoriesListGridItem>
+
+          {/* NEW: Chart Grid Item - spans full width at the bottom */}
+          <ChartGridItem>
+            <CategoryExpenseChart />
+          </ChartGridItem>
+        </MainContentGrid>
+      </AppWrapper>
+    </>
   );
 }
 

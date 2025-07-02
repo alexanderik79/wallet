@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { Category, Status, CategoryState } from '../../types'; 
 import axios from 'axios';
 import { RootState } from '../../app/store';
-// NEW: Импортируем ERROR_MESSAGES
 import { ERROR_MESSAGES } from '../../constants/errorMessages'; 
 
 const initialState: CategoryState = {
@@ -21,10 +20,8 @@ export const fetchCategories = createAsyncThunk(
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        // UPDATED: Используем ERROR_MESSAGES
         throw new Error(error.message || ERROR_MESSAGES.CATEGORY.FETCH_FAILED_GENERIC);
       }
-      // UPDATED: Используем ERROR_MESSAGES
       throw new Error(ERROR_MESSAGES.CATEGORY.UNKNOWN_FETCH_ERROR);
     }
   }
@@ -40,7 +37,8 @@ const categorySlice = createSlice({
         state.status = Status.Succeeded;
         state.error = null;
       },
-      prepare(payload: Omit<Category, 'id' | 'income' | 'expense' | 'isDefault' | 'userId'>, userId: string) {
+      // UPDATED: Добавлено 'budget' в Omit и в payload
+      prepare(payload: Omit<Category, 'id' | 'income' | 'expense' | 'isDefault' | 'userId' | 'budget'>, userId: string) {
         return {
           payload: {
             id: uuidv4(),
@@ -48,7 +46,8 @@ const categorySlice = createSlice({
             ...payload,
             income: 0,
             expense: 0,
-            isDefault: false
+            isDefault: false,
+            budget: 0 // Initialize budget for new categories
           }
         };
       }
@@ -62,7 +61,6 @@ const categorySlice = createSlice({
         state.error = null;
       } else {
         state.status = Status.Failed;
-        // UPDATED: Используем ERROR_MESSAGES с функцией
         state.error = ERROR_MESSAGES.CATEGORY.NOT_FOUND_FOR_UPDATE(id);
       }
     },
@@ -78,6 +76,19 @@ const categorySlice = createSlice({
         category.income += incomeChange;
         category.expense += expenseChange;
       }
+    },
+    // NEW: Редьюсер для обновления бюджета категории (если его не было, добавьте)
+    updateCategoryBudget: (state, action: PayloadAction<{ id: string; budget: number }>) => {
+      const { id, budget } = action.payload;
+      const category = state.categories.find(cat => cat.id === id);
+      if (category) {
+        category.budget = budget;
+        state.status = Status.Succeeded;
+        state.error = null;
+      } else {
+        state.status = Status.Failed;
+        state.error = `Category with ID ${id} not found for budget update.`; // Consider adding to ERROR_MESSAGES
+      }
     }
   },
   extraReducers: (builder) => {
@@ -92,7 +103,6 @@ const categorySlice = createSlice({
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.status = Status.Failed;
-        // UPDATED: Используем ERROR_MESSAGES
         state.error = action.error.message || ERROR_MESSAGES.CATEGORY.FAILED_TO_LOAD;
         state.categories = [];
       });
@@ -104,6 +114,7 @@ export const {
   updateCategory,
   deleteCategory,
   updateCategoryBalances,
+  updateCategoryBudget, // NEW: Export this action if it was missing
 } = categorySlice.actions;
 
 export default categorySlice.reducer;

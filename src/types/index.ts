@@ -19,6 +19,7 @@ export interface Category {
   income: number;
   expense: number;
   isDefault: boolean;
+  budget: number; // NEW: Добавляем свойство budget
 }
 
 // Type for transaction type
@@ -51,13 +52,13 @@ export interface CategoryState {
 // Interface for the User slice state
 export interface UserState {
   currentUser: User | null;
-  status: Status; 
+  status: Status;
   error: string | null;
 }
 
 // Interface for the History slice state
 export interface HistoryState {
   transactions: HistoryItem[];
-  status: Status; 
+  status: Status;
   error: string | null;
 }

@@ -17,8 +17,8 @@ export const SidebarArea = styled.div`
   display: flex;
   flex-direction: column;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  position: sticky; 
-  top: 0;           
+  position: sticky;
+  top: 0;
   align-self: start;
   height: 100vh;
 `;
@@ -57,15 +57,15 @@ export const SidebarNav = styled.nav`
 
 export const MainContentGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, 1fr); 
-  /* UPDATED: Первый ряд будет по высоте содержимого (auto), второй займет оставшееся пространство (1fr) */
-  grid-template-rows: auto 1fr; 
+  grid-template-columns: repeat(5, 1fr);
+  /* UPDATED: Добавляем третью строку для графика. Используем 'auto' для нее. */
+  grid-template-rows: auto 1fr auto; /* NOW 3 ROWS: Header, Main Content, Chart */
   gap: 10px;
   padding: 10px;
 `;
 
 export const TopBalanceOverview = styled.div`
-  grid-column: 1; 
+  grid-column: 1;
   grid-row: 1;
   background-color: #ffffff;
   border-radius: 12px;
@@ -109,7 +109,7 @@ export const AddNoteGridItem = styled.div`
 
 export const CategoriesListGridItem = styled.div`
   grid-column: 1 / span 4;
-  grid-row: 2; /* Теперь это второй ряд */
+  grid-row: 2; /* Still second row, but now there's a third below it */
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -118,9 +118,23 @@ export const CategoriesListGridItem = styled.div`
 
 export const HistoryGridItem = styled.div`
   grid-column: 5;
-  grid-row: 1 / span 2;
+  grid-row: 1 / span 2; /* Spans first and second row */
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   padding: 30px;
+`;
+
+// NEW: Новый styled-компонент для ячейки с графиком, растянутой на всю ширину
+export const ChartGridItem = styled.div`
+  grid-column: 1 / span 5; /* Spans all 5 columns */
+  grid-row: 3; /* Placed in the new, third row */
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 `;
