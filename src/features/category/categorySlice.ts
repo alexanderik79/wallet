@@ -16,8 +16,16 @@ export const fetchCategories = createAsyncThunk(
   'category/fetchCategories',
   async (userId: string) => {
     try {
-      const response = await axios.get<Category[]>(`http://localhost:3000/categories?userId=${userId}`);
-      return response.data;
+      // Option 1: Fetch from live API 
+      // const response = await axios.get<Category[]>(`http://localhost:3000/categories?userId=${userId}`);
+      // const userCategories = response.data;
+
+      // Option 2: Fetch from static data.json (for Netlify deployment)
+      const response = await axios.get<{ users: any[]; categories: Category[] }>('/data.json'); // Adjust path if not data.json
+      const allCategories = response.data.categories;
+      const userCategories = allCategories.filter(cat => cat.userId === userId);
+      
+      return userCategories;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         throw new Error(error.message || ERROR_MESSAGES.CATEGORY.FETCH_FAILED_GENERIC);
@@ -37,7 +45,6 @@ const categorySlice = createSlice({
         state.status = Status.Succeeded;
         state.error = null;
       },
-      // UPDATED: Добавлено 'budget' в Omit и в payload
       prepare(payload: Omit<Category, 'id' | 'income' | 'expense' | 'isDefault' | 'userId' | 'budget'>, userId: string) {
         return {
           payload: {
@@ -47,7 +54,7 @@ const categorySlice = createSlice({
             income: 0,
             expense: 0,
             isDefault: false,
-            budget: 0 // Initialize budget for new categories
+            budget: 0
           }
         };
       }
@@ -77,7 +84,6 @@ const categorySlice = createSlice({
         category.expense += expenseChange;
       }
     },
-    // NEW: Редьюсер для обновления бюджета категории (если его не было, добавьте)
     updateCategoryBudget: (state, action: PayloadAction<{ id: string; budget: number }>) => {
       const { id, budget } = action.payload;
       const category = state.categories.find(cat => cat.id === id);
@@ -87,7 +93,7 @@ const categorySlice = createSlice({
         state.error = null;
       } else {
         state.status = Status.Failed;
-        state.error = `Category with ID ${id} not found for budget update.`; // Consider adding to ERROR_MESSAGES
+        state.error = `Category with ID ${id} not found for budget update.`;
       }
     }
   },
@@ -114,7 +120,7 @@ export const {
   updateCategory,
   deleteCategory,
   updateCategoryBalances,
-  updateCategoryBudget, // NEW: Export this action if it was missing
+  updateCategoryBudget,
 } = categorySlice.actions;
 
 export default categorySlice.reducer;

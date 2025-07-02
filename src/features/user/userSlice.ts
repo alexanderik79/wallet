@@ -2,7 +2,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { User, Status, UserState } from '../../types';
 import axios from 'axios';
-// NEW: Импортируем ERROR_MESSAGES
 import { ERROR_MESSAGES } from '../../constants/errorMessages'; 
 
 const initialState: UserState = {
@@ -15,14 +14,24 @@ export const fetchUser = createAsyncThunk(
   'user/fetchUser',
   async (userId: string = "user-uuid-12345") => {
     try {
-      const response = await axios.get<User>(`http://localhost:3000/users/${userId}`);
-      return response.data;
+      // Option 1: Fetch from live API 
+      // const response = await axios.get<{users: User[]}>(`http://localhost:3000/users?id=${userId}`);
+      // const foundUser = response.data.users[0]; // Assuming API returns an array, take first match
+
+      // Option 2: Fetch from static data.json (for Netlify deployment)
+      const response = await axios.get<{ users: User[]; categories: any[] }>('/data.json'); // Adjust path if not data.json
+      const foundUser = response.data.users.find(user => user.id === userId);
+
+
+      if (!foundUser) {
+        throw new Error(`User with ID ${userId} not found.`);
+      }
+      
+      return foundUser; 
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        // UPDATED: Используем ERROR_MESSAGES
         throw new Error(error.response?.data?.message || error.message || ERROR_MESSAGES.USER.FETCH_FAILED_GENERIC);
       }
-      // UPDATED: Используем ERROR_MESSAGES
       throw new Error(ERROR_MESSAGES.USER.UNKNOWN_FETCH_ERROR);
     }
   }
@@ -69,7 +78,6 @@ const userSlice = createSlice({
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.status = Status.Failed;
-        // UPDATED: Используем ERROR_MESSAGES
         state.error = action.error.message || ERROR_MESSAGES.USER.FAILED_TO_LOAD;
         state.currentUser = null;
       });
