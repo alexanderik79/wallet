@@ -1,19 +1,26 @@
 {
   "users": [
-    {
-      "id": "user-uuid-12345",
-      "name": "Alex Smith",
+       {
+      "id": "user-uuid-1",
+      "name": "Alex Smith", 
       "email": "alex.smith@example.com",
       "startBalance": 7500.50,
       "photo": "https://randomuser.me/api/portraits/men/75.jpg"
+    },
+    {
+      "id": "user-uuid-2",
+      "name": "John Dow", 
+      "email": "john.dow@example.com",
+      "startBalance": 1800.50,
+      "photo": "https://randomuser.me/api/portraits/men/70.jpg"
     }
   ],
   "categories": [
-    { "id": "cat-1", "userId": "user-uuid-12345", "title": "Education", "description": "Learning and development", "income": 0, "expense": 50, "isDefault": true, "budget": 100 },
-    { "id": "cat-2", "userId": "user-uuid-12345", "title": "Food", "description": "Groceries and dining out", "income": 0, "expense": 300, "isDefault": true, "budget": 500 },
-    { "id": "cat-3", "userId": "user-uuid-12345", "title": "Transport", "description": "Commute and travel", "income": 0, "expense": 150, "isDefault": true, "budget": 200 },
-    { "id": "cat-4", "userId": "user-uuid-12345", "title": "Salary", "description": "Regular income from work", "income": 2000, "expense": 0, "isDefault": true, "budget": 0 },
-    { "id": "cat-5", "userId": "user-uuid-12345", "title": "Utilities", "description": "Bills (electricity, water, internet)", "income": 0, "expense": 120, "isDefault": true, "budget": 150 },
-    { "id": "cat-6", "userId": "user-uuid-12346", "title": "Hobbies (Other User)", "description": "For a different user", "income": 0, "expense": 80, "isDefault": false, "budget": 100 }
+    { "id": "cat-1", "userId": "user-uuid-1", "title": "Education", "description": "Learning and development", "income": 0, "expense": 50, "isDefault": true, "budget": 100 },
+    { "id": "cat-2", "userId": "user-uuid-1", "title": "Food", "description": "Groceries and dining out", "income": 0, "expense": 300, "isDefault": true, "budget": 500 },
+    { "id": "cat-3", "userId": "user-uuid-1", "title": "Transport", "description": "Commute and travel", "income": 0, "expense": 150, "isDefault": true, "budget": 200 },
+    { "id": "cat-4", "userId": "user-uuid-1", "title": "Salary", "description": "Regular income from work", "income": 2000, "expense": 0, "isDefault": true, "budget": 0 },
+    { "id": "cat-5", "userId": "user-uuid-1", "title": "Utilities", "description": "Bills (electricity, water, internet)", "income": 0, "expense": 120, "isDefault": true, "budget": 150 },
+    { "id": "cat-6", "userId": "user-uuid-2", "title": "Hobbies (Other User)", "description": "For a different user", "income": 0, "expense": 80, "isDefault": false, "budget": 100 }
   ]
 }

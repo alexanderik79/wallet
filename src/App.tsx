@@ -2,8 +2,10 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUserStatus, fetchUser } from './features/user/userSlice';
+import { fetchCategories } from './features/category/categorySlice';
 import { AppDispatch, RootState } from './app/store';
 
+import { USER_ID } from './constants/userId'; 
 
 import { GlobalStyle } from './styles/GlobalStyle';
 
@@ -35,7 +37,8 @@ function App() {
   // Fetch user on app load if not already loading or succeeded
   useEffect(() => {
     if (userStatus === 'idle') {
-      dispatch(fetchUser('user-uuid-12345')); // Ensure you call with a valid userId from db.json
+      dispatch(fetchUser(USER_ID.USER.ID)); // Ensure you call with a valid userId from db.json
+      dispatch(fetchCategories(USER_ID.USER.ID));
     }
   }, [userStatus, dispatch]);
 

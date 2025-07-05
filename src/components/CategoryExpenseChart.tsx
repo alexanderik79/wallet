@@ -4,45 +4,31 @@ import { useSelector } from 'react-redux';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid
 } from 'recharts';
-import styled from 'styled-components';
+import {
+  ChartContainerWrapper,
+  ChartTitle,
+  tooltipContainerStyle,
+  tooltipBoldTextStyle,
+  tooltipBudgetTextStyle,
+  tooltipExpensesTextStyle,
+  tooltipRemainingTextStyle,
+  tooltipOverspentTextStyle,
+  // tooltipTextStyle // Not directly used in current CustomTooltip, but imported if needed
+} from './CategoryExpenseChart.styles';
 import { selectAllCategories } from '../features/category/categorySlice';
-import { RootState } from '../app/store'; // Ensure the path to RootState is correct
-
-const ChartContainerWrapper = styled.div`
-  width: 100%;
-  height: 400px; /* Fixed height for the chart */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center; /* Center content vertically */
-`;
-
-const ChartTitle = styled.h2`
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #333;
-  font-size: 1.5em;
-  text-align: center;
-`;
+import { RootState } from '../app/store';
 
 // Custom Tooltip for displaying additional information on hover
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const category = payload[0].payload; // Access the original category data object
     return (
-      <div style={{
-        backgroundColor: '#fff',
-        padding: '10px',
-        border: '1px solid #ccc',
-        borderRadius: '5px',
-        fontSize: '0.9em',
-        color: '#333'
-      }}>
-        <p style={{ margin: 0, fontWeight: 'bold' }}>{category.name}</p>
-        <p style={{ margin: '5px 0 0', color: '#8884d8' }}>Budget: ${category.budget}</p>
-        <p style={{ margin: '0', color: '#82ca9d' }}>Expenses: ${category.expense}</p>
-        {category.budget > 0 && <p style={{ margin: '0', color: '#ffc658' }}>Remaining: ${Math.max(0, category.budget - category.expense)}</p>}
-        {category.budget > 0 && (category.expense > category.budget) && <p style={{ margin: '0', color: '#ff0000', fontWeight: 'bold' }}>Overspent: ${Math.abs(category.budget - category.expense)}</p>}
+      <div style={tooltipContainerStyle}>
+        <p style={tooltipBoldTextStyle}>{category.title}</p> {/* Use category.title for consistency */}
+        <p style={tooltipBudgetTextStyle}>Budget: ${category.budget}</p>
+        <p style={tooltipExpensesTextStyle}>Expenses: ${category.expense}</p>
+        {category.budget > 0 && <p style={tooltipRemainingTextStyle}>Remaining: ${Math.max(0, category.budget - category.expense)}</p>}
+        {category.budget > 0 && (category.expense > category.budget) && <p style={tooltipOverspentTextStyle}>Overspent: ${Math.abs(category.budget - category.expense)}</p>}
       </div>
     );
   }
@@ -55,10 +41,9 @@ const CategoryExpenseChart: React.FC = () => {
 
   // Prepare data for the chart
   const chartData = categories.map(cat => ({
-    name: cat.title,
+    name: cat.title, // Use category title for X-axis label
     budget: cat.budget,
     expense: cat.expense,
-    // 'remaining' is calculated in the tooltip, but could be a separate bar if needed
   }));
 
   return (

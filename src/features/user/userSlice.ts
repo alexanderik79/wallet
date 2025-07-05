@@ -12,7 +12,7 @@ const initialState: UserState = {
 
 export const fetchUser = createAsyncThunk(
   'user/fetchUser',
-  async (userId: string = "user-uuid-12345") => {
+  async (userId: string) => {
     try {
       // Option 1: Fetch from live API 
       // const response = await axios.get<{users: User[]}>(`http://localhost:3000/users?id=${userId}`);

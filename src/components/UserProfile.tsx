@@ -35,7 +35,7 @@ function UserProfile() {
   useEffect(() => {
     // Only fetch if status is 'idle' to prevent multiple fetches on re-renders
     if (userStatus === 'idle') {
-      dispatch(fetchUser());
+      dispatch(fetchUser("user-uuid-2"))
     }
   }, [userStatus, dispatch]);
 
