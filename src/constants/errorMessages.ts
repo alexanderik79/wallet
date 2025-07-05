@@ -6,6 +6,7 @@ export const ERROR_MESSAGES = {
     FETCH_FAILED_GENERIC: 'Failed to fetch user data',
     UNKNOWN_FETCH_ERROR: 'An unknown error occurred while fetching user',
     FAILED_TO_LOAD: 'Failed to load user', // Used in rejected case
+    NO_CURRENT_USER_TO_UPDATE_BALANCE: "No current user found to update balance.",
   },
 
   // Category Slice Errors
@@ -25,4 +26,5 @@ export const ERROR_MESSAGES = {
   NETWORK: {
     UNKNOWN_ERROR: 'An unknown network error occurred',
   },
+  
 };

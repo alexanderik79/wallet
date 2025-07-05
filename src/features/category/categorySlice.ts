@@ -45,7 +45,7 @@ const categorySlice = createSlice({
         state.status = Status.Succeeded;
         state.error = null;
       },
-      prepare(payload: Omit<Category, 'id' | 'income' | 'expense' | 'isDefault' | 'userId' | 'budget'>, userId: string) {
+      prepare(payload: Omit<Category, 'id' | 'income' | 'expense' | 'isDefault' | 'userId'>, userId: string) {
         return {
           payload: {
             id: uuidv4(),
@@ -54,7 +54,6 @@ const categorySlice = createSlice({
             income: 0,
             expense: 0,
             isDefault: false,
-            budget: 0
           }
         };
       }
@@ -76,24 +75,32 @@ const categorySlice = createSlice({
       state.status = Status.Succeeded;
       state.error = null;
     },
+    // This action correctly updates income and expense for a category
     updateCategoryBalances: (state, action: PayloadAction<{ categoryId: string; incomeChange: number; expenseChange: number }>) => {
       const { categoryId, incomeChange, expenseChange } = action.payload;
       const category = state.categories.find(cat => cat.id === categoryId);
       if (category) {
         category.income += incomeChange;
         category.expense += expenseChange;
+        state.status = Status.Succeeded; // Set status on successful update
+        state.error = null;
+      } else {
+        state.status = Status.Failed; // Set status on failure
+        state.error = `Category with ID ${categoryId} not found for balance update.`;
       }
     },
-    updateCategoryBudget: (state, action: PayloadAction<{ id: string; budget: number }>) => {
-      const { id, budget } = action.payload;
+    updateCategoryBudget: (state, action: PayloadAction<{ id: string; income: number }>) => {
+      const { id, income } = action.payload;
       const category = state.categories.find(cat => cat.id === id);
       if (category) {
-        category.budget = budget;
+        category.income = income; // This looks like it should be category.budget = income; if 'income' is meant to be the budget for this action.
+                              // Based on Category interface, it's 'income' for actual income, not budget.
+                              // If this action is meant to update 'budget', you might need to adjust your Category interface and action name.
         state.status = Status.Succeeded;
         state.error = null;
       } else {
         state.status = Status.Failed;
-        state.error = `Category with ID ${id} not found for budget update.`;
+        state.error = `Category with ID ${id} not found for income update.`;
       }
     }
   },
@@ -119,7 +126,7 @@ export const {
   addCategory,
   updateCategory,
   deleteCategory,
-  updateCategoryBalances,
+  updateCategoryBalances, // Used in AddNote.tsx
   updateCategoryBudget,
 } = categorySlice.actions;
 

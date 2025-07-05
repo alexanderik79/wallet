@@ -25,10 +25,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div style={tooltipContainerStyle}>
         <p style={tooltipBoldTextStyle}>{category.title}</p> {/* Use category.title for consistency */}
-        <p style={tooltipBudgetTextStyle}>Budget: ${category.budget}</p>
+        <p style={tooltipBudgetTextStyle}>Income: ${category.income}</p>
         <p style={tooltipExpensesTextStyle}>Expenses: ${category.expense}</p>
-        {category.budget > 0 && <p style={tooltipRemainingTextStyle}>Remaining: ${Math.max(0, category.budget - category.expense)}</p>}
-        {category.budget > 0 && (category.expense > category.budget) && <p style={tooltipOverspentTextStyle}>Overspent: ${Math.abs(category.budget - category.expense)}</p>}
+        {category.income > 0 && <p style={tooltipRemainingTextStyle}>Remaining: ${Math.max(0, category.income - category.expense)}</p>}
+        {category.income > 0 && (category.expense > category.income) && <p style={tooltipOverspentTextStyle}>Overspent: ${Math.abs(category.income - category.expense)}</p>}
       </div>
     );
   }
@@ -42,13 +42,13 @@ const CategoryExpenseChart: React.FC = () => {
   // Prepare data for the chart
   const chartData = categories.map(cat => ({
     name: cat.title, // Use category title for X-axis label
-    budget: cat.budget,
+    income: cat.income,
     expense: cat.expense,
   }));
 
   return (
     <ChartContainerWrapper>
-      <ChartTitle>Budget and Expense Distribution by Category</ChartTitle>
+      <ChartTitle>Income and Expense Distribution by Category</ChartTitle>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={chartData}
@@ -61,7 +61,7 @@ const CategoryExpenseChart: React.FC = () => {
           <YAxis /> {/* Y-axis - amounts */}
           <Tooltip content={<CustomTooltip />} /> {/* Hover tooltip */}
           <Legend /> {/* Legend for bars */}
-          <Bar dataKey="budget" name="Budget" fill="#8884d8" /> {/* Bar for budget */}
+          <Bar dataKey="income" name="Income" fill="#8884d8" /> {/* Bar for income */}
           <Bar dataKey="expense" name="Expenses" fill="#82ca9d" /> {/* Bar for expenses */}
         </BarChart>
       </ResponsiveContainer>

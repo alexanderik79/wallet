@@ -3,7 +3,10 @@ import styled from 'styled-components';
 
 export const AppWrapper = styled.div`
   display: grid;
-  grid-template-columns: minmax(120px, 210px) 1fr;
+  /* Возвращаем более безопасные значения для сайдбара.
+     Это обеспечивает, что сайдбар не будет слишком узким,
+     чтобы не наезжать на основной контент. */
+  grid-template-columns: minmax(180px, 250px) 1fr; /* Скорее всего, это причина наложения. Вернем адекватные размеры */
   min-height: 100vh;
   background-color: #f0f2f5;
   font-family: 'Inter', sans-serif;
@@ -13,10 +16,10 @@ export const AppWrapper = styled.div`
 export const SidebarArea = styled.div`
   background-color: #2c3e50;
   color: white;
-  padding: 2px;
+  padding: 15px; /* Сохраняем уменьшенный padding */
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 1px 0 8px rgba(0, 0, 0, 0.08); /* Сохраняем уменьшенную тень */
   position: sticky;
   top: 0;
   align-self: start;
@@ -24,9 +27,9 @@ export const SidebarArea = styled.div`
 `;
 
 export const SidebarHeader = styled.div`
-  font-size: 1.2em;
+  font-size: 1.1em; /* Сохраняем уменьшенный шрифт */
   font-weight: bold;
-  margin-bottom: 0px;
+  margin-bottom: 15px; /* Сохраняем уменьшенный отступ */
   text-align: center;
   color: #6c63ff;
 `;
@@ -38,15 +41,15 @@ export const SidebarNav = styled.nav`
     margin: 0;
   }
   li {
-    margin-bottom: 15px;
+    margin-bottom: 10px; /* Сохраняем уменьшенный отступ */
   }
   a {
     color: white;
     text-decoration: none;
-    font-size: 1.1em;
-    padding: 10px 15px;
+    font-size: 1em; /* Сохраняем уменьшенный шрифт */
+    padding: 8px 12px; /* Сохраняем уменьшенный padding */
     display: block;
-    border-radius: 8px;
+    border-radius: 6px; /* Сохраняем уменьшенное скругление */
     transition: background-color 0.2s ease;
 
     &:hover {
@@ -58,22 +61,21 @@ export const SidebarNav = styled.nav`
 export const MainContentGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  /* UPDATED: Добавляем третью строку для графика. Используем 'auto' для нее. */
-  grid-template-rows: auto 1fr auto; /* NOW 3 ROWS: Header, Main Content, Chart */
-  gap: 10px;
-  padding: 10px;
+  grid-template-rows: auto 1fr auto;
+  gap: 12px; /* Уменьшаем gap еще немного */
+  padding: 12px; /* Уменьшаем общий padding вокруг грида еще немного */
 `;
 
 export const TopBalanceOverview = styled.div`
   grid-column: 1;
   grid-row: 1;
   background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* Меньшая тень */
+  padding: 18px; /* Уменьшаем padding */
   text-align: center;
   color: #333;
-  font-size: 1.5em;
+  font-size: 1.2em; /* Слегка уменьшим основной размер шрифта */
   font-weight: bold;
   display: flex;
   flex-direction: column;
@@ -82,15 +84,15 @@ export const TopBalanceOverview = styled.div`
 
   p {
     margin: 0;
-    font-size: 0.8em;
+    font-size: 0.75em; /* Уменьшаем шрифт */
     color: #777;
   }
 
   span {
-    font-size: 2.5em;
+    font-size: 0.85em; /* Уменьшаем шрифт */
     font-weight: bold;
     color: #28a745;
-    margin-top: 10px;
+    margin-top: 6px; /* Уменьшаем отступ */
   }
 `;
 
@@ -98,41 +100,41 @@ export const AddNoteGridItem = styled.div`
   grid-column: 2 / span 3;
   grid-row: 1;
   background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  /* Padding здесь не нужен, т.к. его уже обрабатывает AddNoteContainer */
 `;
 
 export const CategoriesListGridItem = styled.div`
   grid-column: 1 / span 4;
-  grid-row: 2; /* Still second row, but now there's a third below it */
+  grid-row: 2;
   background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 18px; /* Уменьшаем padding */
 `;
 
 export const HistoryGridItem = styled.div`
   grid-column: 5;
-  grid-row: 1 / span 2; /* Spans first and second row */
+  grid-row: 1 / span 2;
   background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 18px; /* Уменьшаем padding */
 `;
 
-// NEW: Новый styled-компонент для ячейки с графиком, растянутой на всю ширину
 export const ChartGridItem = styled.div`
-  grid-column: 1 / span 5; /* Spans all 5 columns */
-  grid-row: 3; /* Placed in the new, third row */
+  grid-column: 1 / span 5;
+  grid-row: 3;
   background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 18px; /* Уменьшаем padding */
   display: flex;
   flex-direction: column;
   align-items: center;

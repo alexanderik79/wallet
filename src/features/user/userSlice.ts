@@ -22,7 +22,6 @@ export const fetchUser = createAsyncThunk(
       const response = await axios.get<{ users: User[]; categories: any[] }>('/data.json'); // Adjust path if not data.json
       const foundUser = response.data.users.find(user => user.id === userId);
 
-
       if (!foundUser) {
         throw new Error(`User with ID ${userId} not found.`);
       }
@@ -63,6 +62,10 @@ const userSlice = createSlice({
         state.currentUser.startBalance = action.payload;
         state.status = Status.Succeeded;
         state.error = null;
+      } else {
+        // This is a new error message you might want to add to constants/errorMessages.ts
+        state.status = Status.Failed;
+        state.error = ERROR_MESSAGES.USER.NO_CURRENT_USER_TO_UPDATE_BALANCE; 
       }
     },
   },

@@ -19,7 +19,7 @@ export interface Category {
   income: number;
   expense: number;
   isDefault: boolean;
-  budget: number; // NEW: Добавляем свойство budget
+  // budget: number; // NEW: Добавляем свойство budget
 }
 
 // Type for transaction type
