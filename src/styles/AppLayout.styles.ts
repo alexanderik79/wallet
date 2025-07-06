@@ -123,9 +123,7 @@ export const HistoryGridItem = styled.div`
   grid-column: 5;
   grid-row: 1 / span 2;
   background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: 18px; /* Уменьшаем padding */
+  padding: 5px; /* Уменьшаем padding */
 `;
 
 export const ChartGridItem = styled.div`

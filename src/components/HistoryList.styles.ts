@@ -29,13 +29,13 @@ export const TransactionItem = styled.div`
   display: flex;
   justify-content: space-between; /* Distribute items with space between */
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
+  padding: 5px 0;
+  // border: 1px solid #6c63ff;
+  border-radius: 8px;
   font-size: 0.9em;
-
-  &:last-child {
-    border-bottom: none;
-  }
+  margin-bottom: 5px;
+  transition: all 0.2s ease-in-out;
+  background-color: #f9f9f9;
 
   &.income-item {
     color: #28a745; /* Green for income */
@@ -45,6 +45,13 @@ export const TransactionItem = styled.div`
   &.expense-item {
     color: #dc3545; /* Red for expense */
     font-weight: 600;
+  }
+
+    &:hover {
+    background-color:rgba(107, 99, 255, 0.33);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    cursor: pointer;
+    // border: 1px solid rgb(255, 255, 255);
   }
 `;
 
@@ -119,8 +126,8 @@ export const ActionButton = styled.button`
   transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background-color: #e0e0e0;
-    color: #5a55e0;
+    // background-color: #e0e0e0;
+    color:rgb(56, 52, 181);
   }
 
   &:active {

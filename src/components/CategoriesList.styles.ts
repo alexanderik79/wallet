@@ -38,11 +38,9 @@ export const CategoryList = styled.ul`
 
 export const CategoryListItem = styled.li`
   background-color: #f9f9f9;
-  border: 1px solid #eee;
+  border: 1px solid #6c63ff;
   border-radius: 8px;
   padding: 5px 10px;
-  /* UPDATED: Удаляем margin-bottom, т.к. spacing теперь будет контролироваться через gap родителя (CategoryList) */
-  /* margin-bottom: 10px; */ 
   
   display: flex;
   flex-direction: column; /* Сохраняем внутреннее содержимое категории в колонке */
@@ -55,8 +53,10 @@ export const CategoryListItem = styled.li`
   max-width: 29%;
 
   &:hover {
-    background-color: #f0f0f0;
+    background-color:rgba(107, 99, 255, 0.33);
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    cursor: pointer;
+    border: 1px solid rgb(255, 255, 255);
   }
 `;
 

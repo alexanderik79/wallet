@@ -94,7 +94,7 @@ function AddNote() {
     dispatch(updateUserBalance(currentUser.startBalance + userBalanceChange));
 
     reset(); 
-    alert('Transaction added successfully!');
+    // alert('Transaction added successfully!');
   };
 
   const currentUsersCategories = categories.filter(cat => currentUser && cat.userId === currentUser.id);
