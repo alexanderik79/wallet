@@ -1,26 +1,33 @@
-// src/components/AddNote.tsx
+// src/components/AddNote.tsx (After MUI installation)
+
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form'; // <-- Import Controller
 import { RootState, AppDispatch } from '../app/store';
 import { selectAllCategories, fetchCategories, updateCategoryBalances } from '../features/category/categorySlice';
 import { addTransaction } from '../features/history/historySlice';
 import { selectCurrentUser, updateUserBalance } from '../features/user/userSlice';
 import { Category, TransactionType, HistoryItem } from '../types';
 
+// Import Material-UI components
 import {
-  AddNoteContainer,
-  AddNoteButton,
-  FormGroup,
-  Label,
-  Input,
-  Select,
-  ToggleButtonGroup,
-  ToggleButtonLabel,
-  HiddenRadioInput,
-  ErrorMessage as StyledErrorMessage,
-  TopFieldsContainer // Importing the new container
-} from './AddNote.styles';
+  Box,        // Universal container component, can be used instead of AddNoteContainer, TopFieldsContainer, FormGroup
+  TextField,  // For text/number input (replaces Input)
+  Button,     // For buttons (replaces AddNoteButton)
+  FormControl, InputLabel, Select, MenuItem, // For dropdowns (replaces Select)
+  RadioGroup, FormControlLabel, Radio, // Radio components are still imported for FormControlLabel, but we won't show the actual Radio circle
+  Typography, // For text, can be used for errors
+  Stack,      // For easy vertical or horizontal arrangement of elements
+  Grid        // For more complex grid layouts
+} from '@mui/material';
+
+// --- Your styled components are NO LONGER NEEDED if you are switching to MUI ---
+// import {
+//   AddNoteContainer, AddNoteButton, FormGroup, Label, Input, Select,
+//   ToggleButtonGroup, ToggleButtonLabel, HiddenRadioInput, ErrorMessage as StyledErrorMessage,
+//   TopFieldsContainer
+// } from './AddNote.styles';
+
 
 interface AddTransactionFormData {
   amount: number;
@@ -34,7 +41,7 @@ function AddNote() {
   const categories = useSelector((state: RootState) => selectAllCategories(state));
   const currentUser = useSelector((state: RootState) => selectCurrentUser(state));
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<AddTransactionFormData>({
+  const { register, handleSubmit, reset, watch, formState: { errors }, control } = useForm<AddTransactionFormData>({ // <-- Added 'control'
     defaultValues: {
       amount: 0,
       selectedCategory: '',
@@ -93,98 +100,154 @@ function AddNote() {
 
     dispatch(updateUserBalance(currentUser.startBalance + userBalanceChange));
 
-    reset(); 
+    reset();
     // alert('Transaction added successfully!');
   };
 
   const currentUsersCategories = categories.filter(cat => currentUser && cat.userId === currentUser.id);
 
   return (
-    <AddNoteContainer>
+    // Use Box as a general container, styles can be added via sx prop
+    // Reduced maxWidth and padding even further for a compact form
+    <Box sx={{ padding: 1, maxWidth: 380, margin: 'auto', border: 'none'}}>
+      {/* Smaller heading */}
+      <Typography variant="subtitle1" component="h2" gutterBottom sx={{ mb: 1 }}>
+        Add New Transaction
+      </Typography>
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* New container for field layout */}
-        <TopFieldsContainer>
+        {/* Use Grid for a two-column layout */}
+        <Grid container spacing={1}> {/* Reduced spacing for a more compact layout */}
           {/* Left column for Amount and Category */}
-          <div>
-            <FormGroup>
-              <Label htmlFor="amount">Amount:</Label>
-              <Input
+          <Grid item xs={12} md={6}>
+            <Stack spacing={1}> {/* Reduced spacing for vertical elements */}
+              <TextField
                 type="number"
-                id="amount"
+                label="Amount"
+                variant="outlined"
+                fullWidth
+                size="small" // <-- Set size to "small"
+                margin="dense" // <-- Added margin="dense" for more compact vertical spacing
                 {...register('amount', {
                   required: 'Amount is required.',
                   min: { value: 0.01, message: 'Amount must be positive.' },
                   valueAsNumber: true,
                 })}
-                placeholder="e.g., 50.00"
-                step="0.01"
+                error={!!errors.amount}
+                helperText={errors.amount?.message}
+                inputProps={{ step: "0.01" }}
               />
-              {errors.amount && <StyledErrorMessage>{errors.amount.message}</StyledErrorMessage>}
-            </FormGroup>
 
-            <FormGroup>
-              <Label htmlFor="selectedCategory">Category:</Label>
-              <Select
-                id="selectedCategory"
-                {...register('selectedCategory', {
-                  required: 'Please select a category.',
-                })}
-              >
-                <option value="">Select a category</option>
-                {currentUsersCategories.map((cat: Category) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.title}
-                  </option>
-                ))}
-              </Select>
-              {errors.selectedCategory && <StyledErrorMessage>{errors.selectedCategory.message}</StyledErrorMessage>}
-            </FormGroup>
-          </div>
-
-          {/* Right column for Type */}
-          <div>
-            <FormGroup>
-              <Label>Type:</Label>
-              <ToggleButtonGroup>
-                <HiddenRadioInput
-                  type="radio"
-                  id="expense-radio"
-                  value="expense"
-                  {...register('transactionType', { required: true })}
+              <FormControl fullWidth error={!!errors.selectedCategory} size="small" margin="dense"> {/* Set size to "small" and margin="dense" */}
+                <InputLabel id="category-select-label">Category</InputLabel>
+                <Controller
+                  name="selectedCategory"
+                  control={control}
+                  rules={{ required: 'Please select a category.' }}
+                  render={({ field }) => (
+                    <Select
+                      labelId="category-select-label"
+                      id="selectedCategory"
+                      label="Category"
+                      {...field}
+                    >
+                      <MenuItem value="">
+                        <em>Select a category</em>
+                      </MenuItem>
+                      {currentUsersCategories.map((cat: Category) => (
+                        <MenuItem key={cat.id} value={cat.id}>
+                          {cat.title}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
                 />
-                <ToggleButtonLabel htmlFor="expense-radio">
-                  Exp
-                </ToggleButtonLabel>
+                {errors.selectedCategory && <Typography variant="caption" color="error">{errors.selectedCategory.message}</Typography>}
+              </FormControl>
+            </Stack>
+          </Grid>
 
-                <HiddenRadioInput
-                  type="radio"
-                  id="income-radio"
-                  value="income"
-                  {...register('transactionType', { required: true })}
-                />
-                <ToggleButtonLabel htmlFor="income-radio">
-                  Inc
-                </ToggleButtonLabel>
-              </ToggleButtonGroup>
-              {errors.transactionType && <StyledErrorMessage>Please select a transaction type.</StyledErrorMessage>}
-            </FormGroup>
-          </div>
-        </TopFieldsContainer>
+          {/* Right column for Type - MODIFIED FOR BUTTONS */}
+          <Grid item xs={12} md={6}>
+            <FormControl component="fieldset" error={!!errors.transactionType} margin="dense"> {/* Added margin="dense" for compact spacing */}
+              <Typography component="legend" variant="caption">Type:</Typography> {/* Optional: smaller legend font size */}
+              <Controller
+                name="transactionType"
+                control={control}
+                rules={{ required: 'Please select a transaction type.' }}
+                render={({ field }) => (
+                  <RadioGroup row {...field} sx={{ gap: 0 }}> {/* Added gap for spacing between buttons */}
+                    {/* Expense Button */}
+                    <FormControlLabel
+                      value="expense"
+                      // We hide the actual Radio component
+                      control={<Radio sx={{ display: 'none' }} />}
+                      label={
+                        <Button
+                          variant={field.value === 'expense' ? 'contained' : 'outlined'} // 'contained' when selected
+                          color={field.value === 'expense' ? 'primary' : 'inherit'}    // Primary color when selected
+                          size="small" // Make buttons small
+                          onClick={() => field.onChange('expense')} // Manually trigger change
+                          sx={{ minWidth: '80px' }} // Give buttons a minimum width for consistent sizing
+                        >
+                          Exp
+                        </Button>
+                      }
+                      sx={{ margin: 0 }} // Remove default margin from FormControlLabel
+                    />
 
-        {/* Description field (now placed below TopFieldsContainer) */}
-        <FormGroup>
-          <Label htmlFor="description">Description (Optional):</Label>
-          <Input
+                    {/* Income Button */}
+                    <FormControlLabel
+                      value="income"
+                      control={<Radio sx={{ display: 'none' }} />} // Hide the actual radio circle
+                      label={
+                        <Button
+                          variant={field.value === 'income' ? 'contained' : 'outlined'} // 'contained' when selected
+                          color={field.value === 'income' ? 'primary' : 'inherit'}    // Primary color when selected
+                          size="small" // Make buttons small
+                          onClick={() => field.onChange('income')} // Manually trigger change
+                          sx={{ minWidth: '80px' }}
+                        >
+                          Inc
+                        </Button>
+                      }
+                      sx={{ margin: 0 }} // Remove default margin from FormControlLabel
+                    />
+                  </RadioGroup>
+                )}
+              />
+              {errors.transactionType && <Typography variant="caption" color="error">{errors.transactionType.message}</Typography>}
+            </FormControl>
+          </Grid>
+        </Grid>
+
+        {/* Description field */}
+        <Box sx={{ mt: 1 }}> {/* Reduced top margin */}
+          <TextField
             type="text"
-            id="description"
+            label="Description (Optional)"
+            variant="outlined"
+            fullWidth
+            size="small" // <-- Set size to "small"
+            margin="dense" // <-- Added margin="dense"
             {...register('description')}
             placeholder="e.g., Coffee, Salary"
+            multiline // For multiline input, like Textarea
+            rows={2}
           />
-        </FormGroup>
+        </Box>
 
-        <AddNoteButton type="submit">Add Transaction</AddNoteButton>
+        <Button
+          type="submit"
+          variant="contained" // Filled button
+          color="primary"     // Primary theme color
+          fullWidth           // Full width
+          size="small"        // Changed button size to small
+          sx={{ mt: 1 }}      // Reduced top margin
+        >
+          Add Transaction
+        </Button>
       </form>
-    </AddNoteContainer>
+    </Box>
   );
 }
 

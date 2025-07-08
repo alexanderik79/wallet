@@ -7,6 +7,7 @@ export const HistoryListContainer = styled.div`
   overflow-y: auto;
   padding-right: 10px; /* Space for scrollbar */
   box-sizing: border-box;
+  border-radius: 8px;
 
   /* Custom scrollbar styling for better aesthetics */
   &::-webkit-scrollbar {
