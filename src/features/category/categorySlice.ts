@@ -1,4 +1,3 @@
-// src/features/category/categorySlice.ts
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
 import { Category, Status, CategoryState } from '../../types'; 
@@ -75,17 +74,16 @@ const categorySlice = createSlice({
       state.status = Status.Succeeded;
       state.error = null;
     },
-    // This action correctly updates income and expense for a category
     updateCategoryBalances: (state, action: PayloadAction<{ categoryId: string; incomeChange: number; expenseChange: number }>) => {
       const { categoryId, incomeChange, expenseChange } = action.payload;
       const category = state.categories.find(cat => cat.id === categoryId);
       if (category) {
         category.income += incomeChange;
         category.expense += expenseChange;
-        state.status = Status.Succeeded; // Set status on successful update
+        state.status = Status.Succeeded;
         state.error = null;
       } else {
-        state.status = Status.Failed; // Set status on failure
+        state.status = Status.Failed;
         state.error = `Category with ID ${categoryId} not found for balance update.`;
       }
     },
@@ -93,9 +91,7 @@ const categorySlice = createSlice({
       const { id, income } = action.payload;
       const category = state.categories.find(cat => cat.id === id);
       if (category) {
-        category.income = income; // This looks like it should be category.budget = income; if 'income' is meant to be the budget for this action.
-                              // Based on Category interface, it's 'income' for actual income, not budget.
-                              // If this action is meant to update 'budget', you might need to adjust your Category interface and action name.
+        category.income = income; // Возможно, тут нужно поправить логику, если income — не бюджет
         state.status = Status.Succeeded;
         state.error = null;
       } else {
@@ -126,7 +122,7 @@ export const {
   addCategory,
   updateCategory,
   deleteCategory,
-  updateCategoryBalances, // Used in AddNote.tsx
+  updateCategoryBalances, // Used in History component for delete
   updateCategoryBudget,
 } = categorySlice.actions;
 

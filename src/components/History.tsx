@@ -1,22 +1,20 @@
-// src/components/History.tsx
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../app/store';
-import { selectAllTransactions } from '../features/history/historySlice';
-import { selectAllCategories } from '../features/category/categorySlice';
+import {
+  selectAllTransactions,
+  deleteTransaction,
+} from '../features/history/historySlice';
+import { selectAllCategories, updateCategoryBalances } from '../features/category/categorySlice';
 import { HistoryItem, Category } from '../types';
 
-// Import its specific grid style from AppLayout
-import { HistoryGridItem } from '../styles/AppLayout.styles'; 
-
-// Import new styles for the list itself
 import {
   HistoryListContainer,
   TransactionItem,
   TransactionDetails,
   TransactionRow,
   TransactionAmount,
-  TransactionTypeBadge, // This is the ONLY place type badge is rendered
+  TransactionTypeBadge,
   TransactionCategoryInfo,
   TransactionDescription,
   TransactionDate,
@@ -25,39 +23,59 @@ import {
   NoTransactionsMessage,
 } from './HistoryList.styles';
 
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import AddNote from './AddNote';
+
 function History() {
-  // Select all transactions from the Redux store
+  const dispatch = useDispatch();
   const transactions = useSelector(selectAllTransactions);
-  // Select all categories from the Redux store
   const categories = useSelector(selectAllCategories);
 
-  // Helper function to find category title by ID
+  const [transactionToEdit, setTransactionToEdit] = useState<HistoryItem | null>(null);
+
   const getCategoryTitle = (categoryId: string): string => {
     const category = categories.find((cat: Category) => cat.id === categoryId);
     return category ? category.title : 'Unknown Category';
   };
 
-  // Sort transactions by date in descending order (most recent first)
-  const sortedTransactions = [...transactions].sort((a, b) => {
-    // Assuming date is in 'YYYY-MM-DD' format, string comparison works
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
-  });
+  const sortedTransactions = [...transactions].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 
   const handleEdit = (transactionId: string) => {
-    alert(`Edit transaction: ${transactionId}`);
-    // Implement actual edit logic later (e.g., open a modal with form)
-  };
-
-  const handleDelete = (transactionId: string) => {
-    if (window.confirm(`Are you sure you want to delete transaction ${transactionId}?`)) {
-      alert(`Delete transaction: ${transactionId}`);
-      // Implement actual delete logic later (dispatch deleteTransaction action)
+    const transaction = transactions.find(t => t.id === transactionId);
+    if (transaction) {
+      setTransactionToEdit(transaction);
     }
   };
 
+  const handleDelete = (transactionId: string) => {
+    const transaction = transactions.find(t => t.id === transactionId);
+    if (!transaction) return;
+
+    if (window.confirm(`Are you sure you want to delete transaction ${transactionId}?`)) {
+      const incomeChange = transaction.type === 'income' ? -transaction.amount : 0;
+      const expenseChange = transaction.type === 'expense' ? -transaction.amount : 0;
+
+      dispatch(updateCategoryBalances({
+        categoryId: transaction.categoryId,
+        incomeChange,
+        expenseChange,
+      }));
+
+      dispatch(deleteTransaction(transactionId));
+    }
+  };
+
+  const handleCloseModal = () => {
+    setTransactionToEdit(null);
+  };
+
   return (
-    <HistoryGridItem>
-      <h3>Transaction History</h3> {/* Keep the heading */}
+    <div>
+      <h3>Transaction History</h3>
       {sortedTransactions.length === 0 ? (
         <NoTransactionsMessage>No transactions recorded yet.</NoTransactionsMessage>
       ) : (
@@ -67,10 +85,8 @@ function History() {
               <TransactionDetails>
                 <TransactionRow>
                   <TransactionAmount>
-                    {/* Display amount with appropriate sign */}
                     {transaction.type === 'expense' ? '-' : '+'}${transaction.amount.toFixed(2)}
                   </TransactionAmount>
-                  {/* This is the ONLY TransactionTypeBadge in the component */}
                   <TransactionTypeBadge className={transaction.type}>
                     {transaction.type}
                   </TransactionTypeBadge>
@@ -78,28 +94,35 @@ function History() {
                     from {getCategoryTitle(transaction.categoryId)}
                   </TransactionCategoryInfo>
                 </TransactionRow>
-                {/* Display description if available */}
                 {transaction.description && (
                   <TransactionDescription>{transaction.description}</TransactionDescription>
                 )}
               </TransactionDetails>
-              
-              {/* Display transaction date */}
+
               <TransactionDate>{transaction.date}</TransactionDate>
 
               <TransactionActions>
                 <ActionButton onClick={() => handleEdit(transaction.id)} title="Edit Transaction">
-                  <i className="fas fa-edit"></i> {/* Font Awesome Edit Icon */}
+                  <i className="fas fa-edit"></i>
                 </ActionButton>
                 <ActionButton onClick={() => handleDelete(transaction.id)} title="Delete Transaction">
-                  <i className="fas fa-trash-alt"></i> {/* Font Awesome Delete Icon */}
+                  <i className="fas fa-trash-alt"></i>
                 </ActionButton>
               </TransactionActions>
             </TransactionItem>
           ))}
         </HistoryListContainer>
       )}
-    </HistoryGridItem>
+
+      <Dialog open={!!transactionToEdit} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Transaction</DialogTitle>
+        <DialogContent dividers>
+          {transactionToEdit && (
+            <AddNote initialData={transactionToEdit} onClose={handleCloseModal} />
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 
