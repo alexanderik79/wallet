@@ -21,14 +21,6 @@ import {
   Grid        // For more complex grid layouts
 } from '@mui/material';
 
-// --- Your styled components are NO LONGER NEEDED if you are switching to MUI ---
-// import {
-//   AddNoteContainer, AddNoteButton, FormGroup, Label, Input, Select,
-//   ToggleButtonGroup, ToggleButtonLabel, HiddenRadioInput, ErrorMessage as StyledErrorMessage,
-//   TopFieldsContainer
-// } from './AddNote.styles';
-
-
 interface AddTransactionFormData {
   amount: number;
   selectedCategory: string;
@@ -109,7 +101,7 @@ function AddNote() {
   return (
     // Use Box as a general container, styles can be added via sx prop
     // Reduced maxWidth and padding even further for a compact form
-    <Box sx={{ padding: 1, maxWidth: 380, margin: 'auto', border: 'none'}}>
+    <Box sx={{ padding: 1, border: 'none'}}>
       {/* Smaller heading */}
       <Typography variant="subtitle1" component="h2" gutterBottom sx={{ mb: 1 }}>
         Add New Transaction
@@ -187,7 +179,7 @@ function AddNote() {
                           color={field.value === 'expense' ? 'primary' : 'inherit'}    // Primary color when selected
                           size="small" // Make buttons small
                           onClick={() => field.onChange('expense')} // Manually trigger change
-                          sx={{ minWidth: '80px' }} // Give buttons a minimum width for consistent sizing
+                          sx={{ minWidth: '50px' }} // Give buttons a minimum width for consistent sizing
                         >
                           Exp
                         </Button>
@@ -205,7 +197,7 @@ function AddNote() {
                           color={field.value === 'income' ? 'primary' : 'inherit'}    // Primary color when selected
                           size="small" // Make buttons small
                           onClick={() => field.onChange('income')} // Manually trigger change
-                          sx={{ minWidth: '80px' }}
+                          sx={{ minWidth: '50px' }}
                         >
                           Inc
                         </Button>
