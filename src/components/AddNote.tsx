@@ -153,7 +153,7 @@ function AddNote() {
                   {...register('transactionType', { required: true })}
                 />
                 <ToggleButtonLabel htmlFor="expense-radio">
-                  Expense
+                  Exp
                 </ToggleButtonLabel>
 
                 <HiddenRadioInput
@@ -163,7 +163,7 @@ function AddNote() {
                   {...register('transactionType', { required: true })}
                 />
                 <ToggleButtonLabel htmlFor="income-radio">
-                  Income
+                  Inc
                 </ToggleButtonLabel>
               </ToggleButtonGroup>
               {errors.transactionType && <StyledErrorMessage>Please select a transaction type.</StyledErrorMessage>}

@@ -21,7 +21,7 @@ const historySlice = createSlice({
         date: new Date().toISOString().split('T')[0],
         ...action.payload,
       };
-      state.transactions.push(newTransaction);
+      state.transactions.unshift(newTransaction);
       state.status = Status.Succeeded;
       state.error = null;
     },
