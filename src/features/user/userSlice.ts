@@ -2,7 +2,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { User, Status, UserState } from '../../types';
 import axios from 'axios';
-import { ERROR_MESSAGES } from '../../constants/errorMessages'; 
+import { ERROR_MESSAGES } from '../../constants/errorMessages';
 
 const initialState: UserState = {
   currentUser: null,
@@ -14,7 +14,7 @@ export const fetchUser = createAsyncThunk(
   'user/fetchUser',
   async (userId: string) => {
     try {
-      // Option 1: Fetch from live API 
+      // Option 1: Fetch from live API
       // const response = await axios.get<{users: User[]}>(`http://localhost:3000/users?id=${userId}`);
       // const foundUser = response.data.users[0]; // Assuming API returns an array, take first match
 
@@ -25,8 +25,8 @@ export const fetchUser = createAsyncThunk(
       if (!foundUser) {
         throw new Error(`User with ID ${userId} not found.`);
       }
-      
-      return foundUser; 
+
+      return foundUser;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         throw new Error(error.response?.data?.message || error.message || ERROR_MESSAGES.USER.FETCH_FAILED_GENERIC);
@@ -57,15 +57,27 @@ const userSlice = createSlice({
         state.error = null;
       }
     },
-    updateUserBalance: (state, action: PayloadAction<number>) => {
+    // Renamed for clarity: This action explicitly SETS the user balance.
+    setUserBalance: (state, action: PayloadAction<number>) => {
       if (state.currentUser) {
         state.currentUser.startBalance = action.payload;
         state.status = Status.Succeeded;
         state.error = null;
       } else {
-        // This is a new error message you might want to add to constants/errorMessages.ts
         state.status = Status.Failed;
-        state.error = ERROR_MESSAGES.USER.NO_CURRENT_USER_TO_UPDATE_BALANCE; 
+        state.error = ERROR_MESSAGES.USER.NO_CURRENT_USER_TO_UPDATE_BALANCE;
+      }
+    },
+    // NEW: This action ADJUSTS the user balance by a given amount.
+    adjustUserBalance: (state, action: PayloadAction<number>) => {
+      const changeAmount = action.payload;
+      if (state.currentUser) {
+        state.currentUser.startBalance += changeAmount; // Add the change amount
+        state.status = Status.Succeeded;
+        state.error = null;
+      } else {
+        state.status = Status.Failed;
+        state.error = ERROR_MESSAGES.USER.NO_CURRENT_USER_TO_UPDATE_BALANCE; // Or a more specific error
       }
     },
   },
@@ -91,7 +103,8 @@ export const {
   setUser,
   clearUser,
   updateUserProfile,
-  updateUserBalance,
+  setUserBalance,     // Export the renamed action
+  adjustUserBalance,  // Export the new adjustment action
 } = userSlice.actions;
 
 export default userSlice.reducer;

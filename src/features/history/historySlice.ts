@@ -1,9 +1,10 @@
 // src/features/history/historySlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
-import { HistoryItem, TransactionType, Status, HistoryState } from '../../types'; 
-// NEW: Импортируем ERROR_MESSAGES
-import { ERROR_MESSAGES } from '../../constants/errorMessages'; 
+import { HistoryItem, TransactionType, Status, HistoryState } from '../../types';
+import { ERROR_MESSAGES } from '../../constants/errorMessages';
+// Import RootState if you plan to use getState in a thunk for balance updates
+// import { RootState } from '../../app/store'; // If needed for thunks, but direct dispatch in component is also fine for now
 
 const initialState: HistoryState = {
   transactions: [],
@@ -18,10 +19,10 @@ const historySlice = createSlice({
     addTransaction: (state, action: PayloadAction<Omit<HistoryItem, 'id' | 'date'>>) => {
       const newTransaction: HistoryItem = {
         id: uuidv4(),
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split('T')[0], // Ensure date is 'YYYY-MM-DD'
         ...action.payload,
       };
-      state.transactions.unshift(newTransaction);
+      state.transactions.unshift(newTransaction); // Add to the beginning for most recent first
       state.status = Status.Succeeded;
       state.error = null;
     },
@@ -29,16 +30,18 @@ const historySlice = createSlice({
       const { id, ...updates } = action.payload;
       const existingTransaction = state.transactions.find(transaction => transaction.id === id);
       if (existingTransaction) {
+        // Apply updates, ensuring date is not accidentally reset if not provided
         Object.assign(existingTransaction, updates);
         state.status = Status.Succeeded;
         state.error = null;
       } else {
         state.status = Status.Failed;
-        // UPDATED: Используем ERROR_MESSAGES с функцией
         state.error = ERROR_MESSAGES.HISTORY.TRANSACTION_NOT_FOUND_FOR_UPDATE(id);
       }
     },
     deleteTransaction: (state, action: PayloadAction<string>) => {
+      // Note: Actual balance and category updates need to be handled in the component
+      // or by a thunk that dispatches to userSlice and categorySlice.
       state.transactions = state.transactions.filter(transaction => transaction.id !== action.payload);
       state.status = Status.Succeeded;
       state.error = null;

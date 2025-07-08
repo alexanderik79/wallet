@@ -1,30 +1,30 @@
 // src/components/CategoriesList.tsx
-import React, { useEffect } from 'react';
+import React from 'react'; // Удален useEffect
 import { useSelector, useDispatch } from 'react-redux';
 
 import {
   selectAllCategories,
   selectCategoryStatus,
   selectCategoryError,
-  fetchCategories,
+  // fetchCategories, // Больше не импортируем здесь
   addCategory
 } from '../features/category/categorySlice';
-import { selectCurrentUser, selectUserStatus, selectUserError } from '../features/user/userSlice'; // Import selectUserError
+import { selectCurrentUser, selectUserStatus, selectUserError } from '../features/user/userSlice';
 import { RootState, AppDispatch } from '../app/store';
 import { Category } from '../types';
 
 // --- Import styled components ---
-import { StyledButton, LoadingMessage, ErrorMessage, MessageContainer } from '../styles/SharedStyles'; // Import shared button and messages
+import { StyledButton, LoadingMessage, ErrorMessage, MessageContainer } from '../styles/SharedStyles';
 import {
   CategoriesContainer,
   CategoriesTitle,
   CategoryList,
   CategoryListItem,
-  CategoryTitle as StyledCategoryTitle, // Alias to avoid name conflict with Category interface property
+  CategoryTitle as StyledCategoryTitle,
   CategoryDescription,
   CategoryFinancials,
   EmptyCategoriesMessage
-} from './CategoriesList.styles'; // Import category-specific styles
+} from './CategoriesList.styles';
 
 function CategoriesList() {
   const categories: Category[] = useSelector((state: RootState) => selectAllCategories(state));
@@ -32,14 +32,10 @@ function CategoriesList() {
   const categoryError = useSelector((state: RootState) => selectCategoryError(state));
   const currentUser = useSelector((state: RootState) => selectCurrentUser(state));
   const userStatus = useSelector((state: RootState) => selectUserStatus(state));
-  const userError = useSelector((state: RootState) => selectUserError(state)); // Get user error for display
+  const userError = useSelector((state: RootState) => selectUserError(state));
   const dispatch: AppDispatch = useDispatch();
 
-  useEffect(() => {
-    if (userStatus === 'succeeded' && currentUser && categoryStatus === 'idle') {
-      dispatch(fetchCategories(currentUser.id));
-    }
-  }, [userStatus, currentUser, categoryStatus, dispatch]);
+  // Удален useEffect, который вызывал fetchCategories
 
   const handleAddCategory = () => {
     if (currentUser) {
@@ -68,7 +64,9 @@ function CategoriesList() {
     );
   }
 
-  if (categoryStatus === 'loading') {
+  // Примечание: categoryStatus === 'loading' здесь означает, что, возможно, App.tsx инициировал загрузку
+  // или произошел сброс состояния.
+  if (categoryStatus === 'loading' && categories.length === 0) { // Добавлена проверка на categories.length
     return <LoadingMessage>Loading categories for {currentUser?.name || 'user'}...</LoadingMessage>;
   }
 
@@ -76,14 +74,18 @@ function CategoriesList() {
     return <ErrorMessage>Error loading categories: {categoryError || 'Unknown error'}</ErrorMessage>;
   }
 
+  // Фильтруем категории для текущего пользователя, если они уже загружены
+  const currentUsersCategories = categories.filter(cat => currentUser && cat.userId === currentUser.id);
+
+
   return (
     <CategoriesContainer>
       <CategoriesTitle>Categories (For {currentUser?.name || 'current user'})</CategoriesTitle>
-      {categories.length === 0 && categoryStatus === 'succeeded' ? (
+      {currentUsersCategories.length === 0 && categoryStatus === 'succeeded' ? (
         <EmptyCategoriesMessage>No categories found for this user.</EmptyCategoriesMessage>
       ) : (
         <CategoryList>
-          {categories.map((category) => (
+          {currentUsersCategories.map((category) => (
             <CategoryListItem key={category.id}>
               <StyledCategoryTitle>{category.title} ({category.isDefault ? 'Default' : 'Custom'})</StyledCategoryTitle>
               {category.description && <CategoryDescription>{category.description}</CategoryDescription>}

@@ -1,25 +1,51 @@
 // src/app/store.ts
-import { configureStore } from '@reduxjs/toolkit';
-// Import reducers from our slices
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
+
 import userReducer from '../features/user/userSlice';
 import categoryReducer from '../features/category/categorySlice';
 import historyReducer from '../features/history/historySlice';
 
-export const store = configureStore({
-  reducer: {
-    // Here we define how our overall Redux state will look.
-    // Each key here will correspond to a part of the global state,
-    // managed by the respective reducer.
-    user: userReducer,
-    category: categoryReducer,
-    history: historyReducer,
-  },
+// Объединяем все редьюсеры в один корневой редьюсер
+const rootReducer = combineReducers({
+  user: userReducer,
+  category: categoryReducer, // Убедитесь, что имя 'category' совпадает с ключом в rootReducer
+  history: historyReducer,
 });
 
-// Define type for RootState
-// This is very useful for TypeScript to accurately type the useSelector hook
-// and understand the full structure of your store.
+// Конфигурация для redux-persist
+const persistConfig = {
+  key: 'root',
+  version: 1,
+  storage,
+  // ВАЖНО: Убедитесь, что 'category' включен в whitelist
+  whitelist: ['category', 'history', 'user'], // Явно указываем 'category', 'history' и 'user'
+};
+
+// Создаем "персистентный" редьюсер
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const store = configureStore({
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
+});
+
+export const persistor = persistStore(store);
+
 export type RootState = ReturnType<typeof store.getState>;
-// Define type for AppDispatch
-// This is useful for typing the useDispatch hook and any async thunks you might create.
 export type AppDispatch = typeof store.dispatch;
