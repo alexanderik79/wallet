@@ -1,3 +1,5 @@
+// src/components/AddNote.tsx
+
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
@@ -58,58 +60,124 @@ function AddNote({ initialData, onClose }: AddNoteProps) {
         transactionType: initialData.type,
         description: initialData.description || '',
       });
+    } else {
+      // Сбрасываем форму в режим добавления, если initialData нет
+      reset({
+        amount: 0,
+        selectedCategory: '',
+        transactionType: 'expense',
+        description: '',
+      });
     }
   }, [initialData, reset]);
 
   const onSubmit = (data: AddTransactionFormData) => {
-    if (!currentUser) return;
-
-    const selectedCat = categories.find((cat) => cat.id === data.selectedCategory);
-    if (!selectedCat) return;
-
-    let incomeChange = 0;
-    let expenseChange = 0;
-    let balanceChange = 0;
-
-    if (data.transactionType === 'income') {
-      incomeChange = data.amount;
-      balanceChange = data.amount;
-    } else {
-      expenseChange = data.amount;
-      balanceChange = -data.amount;
+    if (!currentUser) {
+      console.error('Error: No user logged in. Cannot process transaction.');
+      alert('Error: No user logged in. Please log in.');
+      return;
     }
 
+    const newAmount = data.amount;
+    const newType = data.transactionType;
+    const newCategoryId = data.selectedCategory;
+
+    // Переменные для отслеживания изменений балансов пользователя и категорий
+    let userBalanceAdjustment = 0;
+    let oldCategoryIncomeChange = 0;
+    let oldCategoryExpenseChange = 0;
+    let newCategoryIncomeChange = 0;
+    let newCategoryExpenseChange = 0;
+
+    // --- ОБРАБОТКА РЕЖИМА РЕДАКТИРОВАНИЯ ---
+    if (initialData) {
+      const oldAmount = initialData.amount;
+      const oldType = initialData.type;
+      const oldCategoryId = initialData.categoryId;
+
+      // 1. Откат влияния СТАРОЙ транзакции на баланс пользователя
+      if (oldType === 'income') {
+        userBalanceAdjustment -= oldAmount; // Вычитаем старый доход
+      } else { // oldType === 'expense'
+        userBalanceAdjustment += oldAmount; // Прибавляем обратно старый расход
+      }
+
+      // 2. Откат влияния СТАРОЙ транзакции на баланс СТАРОЙ категории
+      if (oldType === 'income') {
+        oldCategoryIncomeChange -= oldAmount;
+      } else { // oldType === 'expense'
+        oldCategoryExpenseChange -= oldAmount;
+      }
+
+      // Если старая категория отличается от новой, откатываем старую категорию
+      if (oldCategoryId !== newCategoryId) {
+        dispatch(updateCategoryBalances({
+          categoryId: oldCategoryId,
+          incomeChange: oldCategoryIncomeChange,
+          expenseChange: oldCategoryExpenseChange,
+        }));
+      } else {
+        // Если категория не изменилась, применяем откат к текущим изменениям
+        newCategoryIncomeChange += oldCategoryIncomeChange;
+        newCategoryExpenseChange += oldCategoryExpenseChange;
+      }
+    }
+
+    // --- ПРИМЕНЕНИЕ ВЛИЯНИЯ НОВОЙ ТРАНЗАКЦИИ (для добавления и редактирования) ---
+
+    // 1. Применение к балансу пользователя
+    if (newType === 'income') {
+      userBalanceAdjustment += newAmount; // Добавляем новый доход
+    } else { // newType === 'expense'
+      userBalanceAdjustment -= newAmount; // Вычитаем новый расход
+    }
+
+    // 2. Применение к балансу НОВОЙ категории
+    if (newType === 'income') {
+      newCategoryIncomeChange += newAmount;
+    } else { // newType === 'expense'
+      newCategoryExpenseChange += newAmount;
+    }
+
+    // Диспатчим изменения для НОВОЙ категории
     dispatch(updateCategoryBalances({
-      categoryId: data.selectedCategory,
-      incomeChange,
-      expenseChange,
+      categoryId: newCategoryId,
+      incomeChange: newCategoryIncomeChange,
+      expenseChange: newCategoryExpenseChange,
     }));
 
+    // --- Обновление истории транзакций ---
     if (initialData) {
-      // EDIT mode
-      dispatch(updateTransaction({
-        ...initialData,
-        amount: data.amount,
-        categoryId: data.selectedCategory,
-        type: data.transactionType,
+      // Режим редактирования: обновляем существующую транзакцию
+      const updatedTransaction: Partial<HistoryItem> & { id: string } = {
+        id: initialData.id,
+        categoryId: newCategoryId,
+        amount: newAmount,
+        type: newType,
         description: data.description,
-      }));
+        date: initialData.date, // Сохраняем оригинальную дату
+      };
+      dispatch(updateTransaction(updatedTransaction));
     } else {
-      // CREATE mode
-      dispatch(addTransaction({
-        amount: data.amount,
-        categoryId: data.selectedCategory,
-        type: data.transactionType,
+      // Режим добавления: добавляем новую транзакцию
+      const newTransaction: Omit<HistoryItem, 'id' | 'date'> = {
+        categoryId: newCategoryId,
+        amount: newAmount,
+        type: newType,
         description: data.description,
-      }));
+      };
+      dispatch(addTransaction(newTransaction));
     }
 
-    dispatch(updateUserBalance(currentUser.startBalance + balanceChange));
+    // --- Обновление баланса пользователя ---
+    dispatch(updateUserBalance(currentUser.startBalance + userBalanceAdjustment));
+
+    // Сброс формы и закрытие модалки
     reset();
     onClose();
   };
 
-  const filteredCategories = categories.filter(cat => cat.userId === currentUser?.id);
+  const filteredCategories = categories.filter(cat => currentUser && cat.userId === currentUser.id);
 
   return (
     <Box sx={{ padding: 1 }}>
@@ -119,7 +187,6 @@ function AddNote({ initialData, onClose }: AddNoteProps) {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6} component="div">
-
             <Stack spacing={1}>
               <TextField
                 type="number"
@@ -161,7 +228,6 @@ function AddNote({ initialData, onClose }: AddNoteProps) {
           </Grid>
 
           <Grid item xs={12} md={6} component="div">
-
             <FormControl component="fieldset" error={!!errors.transactionType} margin="dense">
               <Typography component="legend" variant="caption">Type:</Typography>
               <Controller

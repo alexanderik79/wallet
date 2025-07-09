@@ -1,3 +1,4 @@
+// src/components/History.tsx
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../app/store';
@@ -6,6 +7,7 @@ import {
   deleteTransaction,
 } from '../features/history/historySlice';
 import { selectAllCategories, updateCategoryBalances } from '../features/category/categorySlice';
+import { selectCurrentUser, updateUserBalance } from '../features/user/userSlice'; // Импортируем updateUserBalance
 import { HistoryItem, Category } from '../types';
 
 import {
@@ -32,6 +34,7 @@ function History() {
   const dispatch = useDispatch();
   const transactions = useSelector(selectAllTransactions);
   const categories = useSelector(selectAllCategories);
+  const currentUser = useSelector(selectCurrentUser); // Получаем текущего пользователя
 
   const [transactionToEdit, setTransactionToEdit] = useState<HistoryItem | null>(null);
 
@@ -52,19 +55,36 @@ function History() {
   };
 
   const handleDelete = (transactionId: string) => {
+    if (!currentUser) {
+      console.error('Error: No user logged in. Cannot delete transaction.');
+      alert('Error: No user logged in. Please log in.');
+      return;
+    }
+
     const transaction = transactions.find(t => t.id === transactionId);
     if (!transaction) return;
 
-    if (window.confirm(`Are you sure you want to delete transaction ${transactionId}?`)) {
+    if (window.confirm(`Are you sure you want to delete transaction ${transaction.description || transaction.id}?`)) {
       const incomeChange = transaction.type === 'income' ? -transaction.amount : 0;
       const expenseChange = transaction.type === 'expense' ? -transaction.amount : 0;
 
+      // Откатываем влияние на категорию
       dispatch(updateCategoryBalances({
         categoryId: transaction.categoryId,
         incomeChange,
         expenseChange,
       }));
 
+      // Откатываем влияние на баланс пользователя
+      let userBalanceAdjustment = 0;
+      if (transaction.type === 'income') {
+        userBalanceAdjustment -= transaction.amount; // Вычитаем доход, который был добавлен
+      } else { // expense
+        userBalanceAdjustment += transaction.amount; // Добавляем обратно расход, который был вычтен
+      }
+      dispatch(updateUserBalance(currentUser.startBalance + userBalanceAdjustment));
+
+      // Удаляем транзакцию из истории
       dispatch(deleteTransaction(transactionId));
     }
   };
